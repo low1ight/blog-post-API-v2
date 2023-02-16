@@ -1,8 +1,9 @@
-import {genRandomId} from "../utils/generateRandomId";
-import {blogsDB, BlogType} from "../db/blog-database";
+
+import {BlogType} from "../db/blog-database";
 import {CreateBlogModel} from "../models/CreateBlogModel";
+import {blogCollection} from "../db/db";
+import {ObjectId} from 'mongodb'
 import {UpdateBlogModel} from "../models/UpdateBlogModel";
-//import {postsDB, PostType, setPostsDB} from "../db/post-database";
 
 
 
@@ -11,53 +12,55 @@ import {UpdateBlogModel} from "../models/UpdateBlogModel";
 
 export const blogRepository = {
 
-    getBlogs() {
-        return blogsDB
-    },
+    async getBlogs() {
 
-    getBlogById(id:string)   {
-
-        return blogsDB.find(i => i.id === id)
+        return blogCollection.find({}).toArray()
 
     },
 
-    createBlog(newBlogData:CreateBlogModel) {
+    async getBlogById(id:string)   {
 
-        const newBlog:BlogType = {id: genRandomId(), ...newBlogData}
+        return blogCollection.findOne( {_id: new ObjectId(id)} )
 
-        blogsDB.push(newBlog)
+    },
+
+    async createBlog(newBlogData:CreateBlogModel) {
+
+        let date = new Date().toISOString()
+        const result = await blogCollection.insertOne({...newBlogData,createdAt:date,isMembership:true})
+
+
+        const id = result.insertedId.toString()
+
+        const newBlog:BlogType = {id,...newBlogData,createdAt:date,isMembership:true}
 
         return newBlog
     },
 
-    deleteBlog(id:string) {
-
-        const blogIndex = blogsDB.findIndex(item => item.id === id)
-
-        if(blogIndex === -1) return false
-
-        // const arrWithoutThisBlogPosts:PostType[] = postsDB.filter(item => item.blogId !== id)
-        // if(arrWithoutThisBlogPosts.length !== postsDB.length) setPostsDB(arrWithoutThisBlogPosts)
-
-        blogsDB.splice(blogIndex,1)
-
-        return true
+    async deleteBlog(id:string) {
+       try {
+           await blogCollection.deleteOne({_id: new ObjectId(id)})
+           return true
+       }
+       catch {
+           return false
+       }
     },
 
-    updateBlog(id:string, newBlogData:UpdateBlogModel) {
+//
 
-        const blogIndex:number = blogsDB.findIndex(item => item.id === id)
+    async updateBlog(id:string, newBlogData:UpdateBlogModel) {
 
-        if(blogIndex === -1) return false
+        const result = await blogCollection.updateOne(
 
-        const updatedBlog:BlogType = {id,...newBlogData}
+            {_id: new ObjectId(id)},
 
-        // let updatedPosts:PostType[] = postsDB.map(i => i.blogId === id ? {...i, blogName:newBlogData.name } : i)
-        // setPostsDB(updatedPosts)
+            {$set:{...newBlogData}})
 
-        blogsDB.splice(blogIndex,1,updatedBlog)
-        return true
+        return result.acknowledged;
+
+
+
     }
-
 }
 

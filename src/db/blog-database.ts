@@ -1,10 +1,11 @@
 
 export type BlogType = {
-    id:	string,
-    name: string,
-    description: string,
-    websiteUrl:	string,
-
+    id:	string
+    name: string
+    description: string
+    websiteUrl:	string
+    createdAt:string
+    isMembership:boolean
 }
 
 
@@ -13,6 +14,8 @@ export let blogsDB: BlogType[] = [{
     name:"Alex's blog",
     description:"my main blog",
     websiteUrl:	"https://www.lipsum.com/",
+    createdAt:'asdsad',
+    isMembership:true,
 }]
 
 
