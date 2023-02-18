@@ -1,12 +1,13 @@
-import {postsDB} from "../db/post-database";
-import {blogsDB} from "../db/blog-database";
-
+import {blogsCollection, postsCollection} from "../db/db";
 
 
 export const testingRepository = {
-    deleteAllData() {
-        postsDB.splice(0,postsDB.length)
-        blogsDB.splice(0,blogsDB.length)
-    }
 
+    async deleteAllData() {
+
+        const allBlogsRemoveResult = await blogsCollection.deleteMany({})
+        const allPostsRemoveResult = await postsCollection.deleteMany({})
+
+        return allBlogsRemoveResult.acknowledged && allPostsRemoveResult.acknowledged
+    }
 }

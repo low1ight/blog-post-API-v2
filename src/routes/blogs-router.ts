@@ -16,16 +16,16 @@ export const blogsRouter = Router({})
 
 blogsRouter.get('/', async (req:Request, res:Response) => {
 
-    const response:ViewBlogModel[] = await blogRepository.getBlogs()
-
-    return res.send(response)
+    return res.send(await blogRepository.getBlogs())
 
 })
 
 
 blogsRouter.get('/:id',idValidatorMiddleware, async (req:RequestWithParams<UriIdParamsModel>, res:Response) =>  {
 
-    const foundBlog:ViewBlogModel[] | boolean = await blogRepository.getBlogById(req.params.id)
+ //type???
+
+    const foundBlog = await blogRepository.getBlogById(req.params.id)
 
     if(!foundBlog)  return res.sendStatus(404)
 

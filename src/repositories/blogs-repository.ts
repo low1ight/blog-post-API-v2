@@ -1,5 +1,5 @@
 import {CreateBlogModel} from "../models/blogs/CreateBlogModel";
-import {blogCollection} from "../db/db";
+import {blogsCollection} from "../db/db";
 import {ObjectId} from 'mongodb'
 import {UpdateBlogModel} from "../models/blogs/UpdateBlogModel";
 import {toViewModel} from "../utils/toViewModel";
@@ -15,14 +15,14 @@ export const blogRepository = {
 
     async getBlogs() {
 
-        const response:BlogType[] = await blogCollection.find({}).toArray()
+        const response:BlogType[] = await blogsCollection.find({}).toArray()
         return  toViewModel(response)
 
     },
 
     async getBlogById(id:string)   {
 
-    const response:BlogType | null = await blogCollection.findOne( {_id: new ObjectId(id)} )
+    const response:BlogType | null = await blogsCollection.findOne( {_id: new ObjectId(id)} )
 
     if(!response) return false
 
@@ -34,7 +34,7 @@ export const blogRepository = {
     async createBlog(newBlogData:CreateBlogModel) {
 
         let date = new Date().toISOString()
-        const result = await blogCollection.insertOne({...newBlogData,createdAt:date,isMembership:true})
+        const result = await blogsCollection.insertOne({...newBlogData,createdAt:date,isMembership:true})
 
         //if(!result.acknowledged) return false
 
@@ -47,7 +47,7 @@ export const blogRepository = {
 
     async deleteBlog(id:string) {
 
-           let response = await blogCollection.deleteOne({_id: new ObjectId(id)})
+           let response = await blogsCollection.deleteOne({_id: new ObjectId(id)})
 
             return response.acknowledged
 
@@ -56,7 +56,7 @@ export const blogRepository = {
 
     async updateBlog(id:string, newBlogData:UpdateBlogModel) {
 
-        const result = await blogCollection.updateOne(
+        const result = await blogsCollection.updateOne(
 
             {_id: new ObjectId(id)},
 

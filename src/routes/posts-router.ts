@@ -2,26 +2,30 @@ import {Router,Request,Response} from "express";
 import {postsRepository} from "../repositories/posts-repository";
 import {RequestWithBody, RequestWithParams, RequestWithParamsAndBody} from "../request-types";
 import {UriIdParamsModel} from "../models/UriIdParamsModel";
-import {CreatePostModel} from "../models/CreatePostModel";
-import {UpdatePostModel} from "../models/UpdatePostModel";
-import {PostType} from "../db/post-database";
+import {CreatePostModel} from "../models/posts/CreatePostModel";
+import {UpdatePostModel} from "../models/posts/UpdatePostModel";
+
 import {PostsValidationMiddleware} from "../middlewares/validators/posts-validation-middleware";
 import {inputValidationMiddleware} from "../middlewares/validators/input-validation-middleware";
 import {authorizationMiddleware} from "../middlewares/authorization-middleware";
+import {idValidatorMiddleware} from "../middlewares/validators/id-validator-middleware";
+
 
 
 export const postsRouter = Router({})
 
 
-postsRouter.get('/', (req:Request, res:Response) => {
+postsRouter.get('/', async (req:Request, res:Response) => {
 
-    res.send(postsRepository.getPosts())
+    // const posts:ViewPostModel[] = await postsRepository.getPosts()
+
+    res.send(await postsRepository.getPosts())
 
 })
 
-postsRouter.get('/:id', (req:RequestWithParams<UriIdParamsModel>, res) => {
+postsRouter.get('/:id',idValidatorMiddleware, async (req:RequestWithParams<UriIdParamsModel>, res) => {
 
-    const foundPost = postsRepository.getPostById(req.params.id)
+    const foundPost = await postsRepository.getPostById(req.params.id)
 
     if(!foundPost) res.send(404)
 
@@ -31,9 +35,9 @@ postsRouter.get('/:id', (req:RequestWithParams<UriIdParamsModel>, res) => {
 
 
 
-postsRouter.post('/', authorizationMiddleware, PostsValidationMiddleware, inputValidationMiddleware, (req:RequestWithBody<CreatePostModel>, res:Response) => {
+postsRouter.post('/', authorizationMiddleware, PostsValidationMiddleware, inputValidationMiddleware,async (req:RequestWithBody<CreatePostModel>, res:Response) => {
 
-    const newPost:PostType | boolean = postsRepository.createPost(req.body)
+    const newPost = await postsRepository.createPost(req.body)
 
     if(!newPost) res.send(404)
 
@@ -41,9 +45,9 @@ postsRouter.post('/', authorizationMiddleware, PostsValidationMiddleware, inputV
 
 })
 
-postsRouter.put('/:id',authorizationMiddleware,PostsValidationMiddleware,inputValidationMiddleware, (req:RequestWithParamsAndBody<UriIdParamsModel,UpdatePostModel>, res:Response) => {
+postsRouter.put('/:id',authorizationMiddleware,idValidatorMiddleware,PostsValidationMiddleware,inputValidationMiddleware, (req:RequestWithParamsAndBody<UriIdParamsModel,UpdatePostModel>, res:Response) => {
 
-    const isPostUpdated:boolean = postsRepository.updatePost(req.params.id,req.body)
+    const isPostUpdated = postsRepository.updatePost(req.params.id,req.body)
 
     if(!isPostUpdated) res.send(404)
 
@@ -51,9 +55,9 @@ postsRouter.put('/:id',authorizationMiddleware,PostsValidationMiddleware,inputVa
 
 })
 
-postsRouter.delete('/:id',authorizationMiddleware, (req:RequestWithParams<UriIdParamsModel>, res:Response) => {
+postsRouter.delete('/:id',authorizationMiddleware,idValidatorMiddleware, (req:RequestWithParams<UriIdParamsModel>, res:Response) => {
 
-    const isPostDeleted:boolean = postsRepository.deletePost(req.params.id)
+    const isPostDeleted = postsRepository.deletePost(req.params.id)
 
     if(!isPostDeleted) res.send(404)
 

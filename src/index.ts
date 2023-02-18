@@ -3,6 +3,7 @@ import {blogsRouter} from "./routes/blogs-router";
 import {postsRouter} from "./routes/posts-router";
 
 import {runDB} from "./db/db";
+import {testsRouter} from "./routes/testing-router";
 
 
 
@@ -17,7 +18,7 @@ const baseURL:string = "/ht_02/api"
 
 app.use(`${baseURL}/blogs`, blogsRouter)
 app.use(`${baseURL}/posts`, postsRouter)
-// app.use(`${baseURL}/testing`, testsRouter)
+app.use(`${baseURL}/testing`, testsRouter)
 
 
 

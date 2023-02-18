@@ -1,58 +1,119 @@
-import {genRandomId} from "../utils/generateRandomId";
-import {postsDB, PostType} from "../db/post-database";
-import {CreatePostModel} from "../models/CreatePostModel";
-import {blogsDB, BlogType} from "../db/blog-database";
-import {UpdatePostModel} from "../models/UpdatePostModel";
-
+import {CreatePostModel} from "../models/posts/CreatePostModel";
+import {UpdatePostModel} from "../models/posts/UpdatePostModel";
+import {postsCollection} from "../db/db";
+import {ObjectId} from "mongodb";
+import {toViewModel} from "../utils/toViewModel";
+import {Document} from 'bson';
 
 export const postsRepository = {
 
-    getPosts() {
+    async getPosts() {
 
-        return postsDB
+        const posts: Document[] = await postsCollection.aggregate([
+            {
+                "$lookup": {
+                    from: 'blogs',
+                    localField: 'blogId',
+                    foreignField: '_id', as: 'blogs'
+                }
+
+            },
+
+            {
+                "$unwind": "$blogs"
+            },
+
+            {
+                "$project": {
+                    _id: 1,
+                    title: 1,
+                    content: 1,
+                    shortDescription: 1,
+                    blogId: 1,
+                    createdAt:1,
+                    blogName: "$blogs.name"
+                }
+            }
+
+        ]).toArray()
+        return toViewModel(posts)
     },
 
-    getPostById(id:string) {
+    async getPostById(id: string) {
+        // return postsCollection.find({_id: new ObjectId(id) })
 
-        return postsDB.find(i => i.id === id)
+        const foundPost: Document[] = await postsCollection.aggregate([
+            {
+                "$match": {_id: new ObjectId(id)}
+            },
+            {
+                "$lookup": {
+                    from: 'blogs',
+                    localField: 'blogId',
+                    foreignField: '_id', as: 'blogs'
+                }
+
+            },
+
+            {
+                "$unwind": "$blogs"
+            },
+
+            {
+                "$project": {
+                    _id: 1,
+                    title: 1,
+                    content: 1,
+                    shortDescription: 1,
+                    blogId: 1,
+                    createdAt:1,
+                    blogName: "$blogs.name"
+                }
+            }
+
+        ]).toArray()
+
+        return toViewModel(foundPost)
     },
 
-    createPost(newPostData:CreatePostModel) {
-
-        const blog:BlogType | undefined = blogsDB.find(item => item.id === newPostData.blogId)
-
-        if(!blog) return false
-
-        const newPost:PostType = {id: genRandomId(), ...newPostData, blogName:blog.name}
-        postsDB.push(newPost)
-
-        return newPost
-    },
+    async createPost(newPostData: CreatePostModel) {
 
 
-    deletePost(id:string) {
+        let result = await postsCollection.insertOne({...newPostData, blogId: new ObjectId(newPostData.blogId),createdAt:new Date().toISOString()})
 
-        const postIndex:number = postsDB.findIndex(item => item.id === id)
+        if (!result.acknowledged) return false
 
-        if(postIndex === -1) return false
+        //how to get blogName
+        // type??
 
-        postsDB.splice(postIndex,1)
+        // const postTest:ViewPostModel = await this.getPostById(result.insertedId.toString())
 
-        return true
+        return await this.getPostById(result.insertedId.toString())
 
     },
 
-    updatePost(id:string, newPostData:UpdatePostModel) {
 
-        const postIndex = postsDB.findIndex(item => item.id === id)
+    async deletePost(id: string) {
 
-        if(postIndex === -1) return false
+        let result = await postsCollection.deleteOne({_id: new ObjectId(id)})
 
-        const updatedPost:PostType = {...postsDB[postIndex], ...newPostData}
+        return result.acknowledged;
 
-        postsDB.splice(postIndex,1,updatedPost)
+    },
 
-        return true
+    async updatePost(id: string, newPostData: UpdatePostModel) {
+
+        const result = await postsCollection.updateOne(
+            {_id: new ObjectId(id)},
+            {
+                $set: {
+                    ...newPostData,
+                    blogId: new ObjectId(newPostData.blogId)
+                }
+            }
+        )
+
+        return result.acknowledged
     }
 
 }

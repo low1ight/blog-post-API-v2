@@ -25,7 +25,7 @@ export const PostsValidationMiddleware = [
     body(content)
         .isLength({ max: 1000 }).withMessage(fieldErrorMessages.tooLong(1000)),
 
-    body(blogId)
+     body(blogId)
          .custom(isBlogExist)
 ]
 

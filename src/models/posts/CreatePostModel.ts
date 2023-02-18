@@ -1,11 +1,10 @@
+import {ObjectId} from "mongodb";
 
+export type CreatePostModel = {
 
-export type ViewPostModel = {
-    id: string
     title:	string
     shortDescription:string
     content:string
-    blogId:	string
-    blogName:	string
+    blogId:	ObjectId
     createdAt: string
 }
