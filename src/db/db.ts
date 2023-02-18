@@ -1,4 +1,5 @@
 import {MongoClient} from "mongodb";
+import {BlogType} from "../models/blogs/BlogType";
 
 let mongoUrl = 'mongodb://0.0.0.0:27017';
 
@@ -8,7 +9,7 @@ const client = new MongoClient(mongoUrl)
 
 const db = client.db('blog')
 
-export const blogCollection = db.collection("blogs")
+export const blogCollection = db.collection<BlogType>("blogs")
 export const postsCollection = db.collection("posts")
 
 

@@ -1,8 +1,9 @@
 import express from 'express'
 import {blogsRouter} from "./routes/blogs-router";
 import {postsRouter} from "./routes/posts-router";
-import {testsRouter} from "./routes/testing-router";
+
 import {runDB} from "./db/db";
+
 
 
 
@@ -16,7 +17,7 @@ const baseURL:string = "/ht_02/api"
 
 app.use(`${baseURL}/blogs`, blogsRouter)
 app.use(`${baseURL}/posts`, postsRouter)
-app.use(`${baseURL}/testing`, testsRouter)
+// app.use(`${baseURL}/testing`, testsRouter)
 
 
 
@@ -34,3 +35,4 @@ const startApp = async () => {
 
 }
 startApp()
+

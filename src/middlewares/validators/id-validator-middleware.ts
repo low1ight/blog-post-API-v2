@@ -5,6 +5,6 @@ export const idValidatorMiddleware = (req:Request,res:Response,next:NextFunction
 
     if(isValidId(req.params.id)) next()
 
-     else res.send(404)
+     else res.sendStatus(404)
 
 }

@@ -1,14 +1,15 @@
 import {CustomValidator} from "express-validator";
-import {blogsDB} from "../../../db/blog-database";
 import {fieldErrorMessages} from "../err-messages/err-messages";
+import {blogCollection} from "../../../db/db";
+import {ObjectId} from "mongodb";
 
 
-export const isBlogExist: CustomValidator = (value:string) => {
+export const isBlogExist: CustomValidator = async (value:string) => {
 
-    const blogIndex = blogsDB.findIndex(item => item.id === value)
+    const blogIndex = await blogCollection.find({_id: new ObjectId(value)}).toArray() ;
 
-    if(blogIndex === -1) throw new Error(fieldErrorMessages.blogDontExist)
+    if(blogIndex.length === 0) throw new Error(fieldErrorMessages.blogDontExist)
 
-    return true;
-
+    return true
 };
+
