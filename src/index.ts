@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000
 
 app.use(express.json())
 
-const baseURL:string = "/ht_03/api"
+const baseURL:string = "/api"
 
 
 app.use(`${baseURL}/blogs`, blogsRouter)
