@@ -6,7 +6,7 @@ export const authorizationMiddleware = (req:Request,res:Response, next:NextFunct
     const encodedData = Buffer.from("admin:qwerty").toString('base64')
     const correctLoginData = `Basic ${encodedData}`
 
-    if(req.headers.authorization !== correctLoginData) res.send(401)
+    if(req.headers.authorization !== correctLoginData) return res.send(401)
 
     next()
 
