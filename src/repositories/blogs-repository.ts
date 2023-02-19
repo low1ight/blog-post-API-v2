@@ -34,13 +34,13 @@ export const blogRepository = {
     async createBlog(newBlogData:CreateBlogModel) {
 
         let date = new Date().toISOString()
-        const result = await blogsCollection.insertOne({...newBlogData,createdAt:date,isMembership:true})
+        const result = await blogsCollection.insertOne({...newBlogData,createdAt:date,isMembership:false})
 
         //if(!result.acknowledged) return false
 
         const id = result.insertedId.toString()
 
-        const newBlog:ViewBlogModel = {id,...newBlogData,createdAt:date,isMembership:true}
+        const newBlog:ViewBlogModel = {id,...newBlogData,createdAt:date,isMembership:false}
 
         return newBlog
     },
