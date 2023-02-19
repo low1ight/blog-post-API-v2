@@ -26,7 +26,7 @@ export const blogRepository = {
 
     if(!response) return false
 
-    return toViewModel([response])
+    return (toViewModel([response]))[0]
 
     },
 

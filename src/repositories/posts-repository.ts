@@ -73,7 +73,8 @@ export const postsRepository = {
 
         ]).toArray()
 
-        return toViewModel(foundPost)
+
+        return (toViewModel(foundPost))[0]
     },
 
     async createPost(newPostData: CreatePostModel) {
