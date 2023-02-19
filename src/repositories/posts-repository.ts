@@ -98,7 +98,7 @@ export const postsRepository = {
 
         let result = await postsCollection.deleteOne({_id: new ObjectId(id)})
 
-        return result.acknowledged;
+        return result.deletedCount === 1;
 
     },
 
@@ -114,7 +114,7 @@ export const postsRepository = {
             }
         )
 
-        return result.acknowledged
+        return result.modifiedCount === 1
     }
 
 }

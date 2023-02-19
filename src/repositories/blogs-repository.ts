@@ -49,7 +49,7 @@ export const blogRepository = {
 
            let response = await blogsCollection.deleteOne({_id: new ObjectId(id)})
 
-            return response.acknowledged
+            return response.deletedCount === 1
 
     },
 
@@ -62,7 +62,7 @@ export const blogRepository = {
 
             {$set:{...newBlogData}})
 
-        return result.acknowledged;
+        return result.modifiedCount === 1;
 
     }
 }
