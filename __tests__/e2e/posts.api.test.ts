@@ -281,7 +281,6 @@ describe('/posts', () => {
     it('should return 404', async () => {
 
         await request(app).get('/api/posts/' + testingPostId)
-            .set('Authorization','Basic YWRtaW46cXdlcnR5')
             .expect(404)
 
     })

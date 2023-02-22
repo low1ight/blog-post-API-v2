@@ -2,9 +2,10 @@ import {CreateBlogModel} from "../models/blogs/CreateBlogModel";
 import {blogsCollection} from "../db/db";
 import {ObjectId} from 'mongodb'
 import {UpdateBlogModel} from "../models/blogs/UpdateBlogModel";
-import {toViewModel} from "../utils/toViewModel";
 import {BlogType} from "../models/blogs/BlogType";
 import {ViewBlogModel} from "../models/blogs/ViewBlogModel";
+import {arrToBlogViewModel} from "../utils/arrToBlogViewModel";
+import {objToBlogViewModel} from "../utils/objToBlogViewModel";
 
 
 
@@ -13,39 +14,37 @@ import {ViewBlogModel} from "../models/blogs/ViewBlogModel";
 
 export const blogRepository = {
 
-    async getBlogs() {
+    async getBlogs():Promise<ViewBlogModel[]> {
 
         const response:BlogType[] = await blogsCollection.find({}).toArray()
-        return  toViewModel(response)
+        return arrToBlogViewModel(response)
 
     },
 
-    async getBlogById(id:string)   {
+    async getBlogById(id:string):Promise<ViewBlogModel | boolean>  {
 
     const response:BlogType | null = await blogsCollection.findOne( {_id: new ObjectId(id)} )
 
     if(!response) return false
 
-    return (toViewModel([response]))[0]
+    return objToBlogViewModel(response)
 
     },
 
 
-    async createBlog(newBlogData:CreateBlogModel) {
+    async createBlog(newBlogData:CreateBlogModel):Promise<ViewBlogModel> {
 
         let date = new Date().toISOString()
         const result = await blogsCollection.insertOne({...newBlogData,createdAt:date,isMembership:false})
 
-        //if(!result.acknowledged) return false
 
         const id = result.insertedId.toString()
 
-        const newBlog:ViewBlogModel = {id,...newBlogData,createdAt:date,isMembership:false}
+        return {id,...newBlogData,createdAt:date,isMembership:false}
 
-        return newBlog
     },
 
-    async deleteBlog(id:string) {
+    async deleteBlog(id:string):Promise<boolean> {
 
            let response = await blogsCollection.deleteOne({_id: new ObjectId(id)})
 
@@ -54,7 +53,7 @@ export const blogRepository = {
     },
 
 
-    async updateBlog(id:string, newBlogData:UpdateBlogModel) {
+    async updateBlog(id:string, newBlogData:UpdateBlogModel):Promise<boolean> {
 
         const result = await blogsCollection.updateOne(
 
@@ -62,7 +61,8 @@ export const blogRepository = {
 
             {$set:{...newBlogData}})
 
-        return result.modifiedCount === 1;
+        return result.matchedCount === 1;
+
 
     }
 }

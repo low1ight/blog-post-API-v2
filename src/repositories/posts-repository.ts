@@ -2,19 +2,22 @@ import {CreatePostModel} from "../models/posts/CreatePostModel";
 import {UpdatePostModel} from "../models/posts/UpdatePostModel";
 import {postsCollection} from "../db/db";
 import {ObjectId} from "mongodb";
-import {toViewModel} from "../utils/toViewModel";
 import {Document} from 'bson';
+import {arrToPostViewModel} from "../utils/arrToPostViewModel";
+import {ViewPostModel} from "../models/posts/ViewPostModel";
+import {objToPostViewModel} from "../utils/objToPostViewModel";
 
 export const postsRepository = {
 
-    async getPosts() {
+    async getPosts():Promise<ViewPostModel[]> {
 
         const posts: Document[] = await postsCollection.aggregate([
             {
                 "$lookup": {
                     from: 'blogs',
                     localField: 'blogId',
-                    foreignField: '_id', as: 'blogs'
+                    foreignField: '_id',
+                    as: 'blogs'
                 }
 
             },
@@ -36,11 +39,12 @@ export const postsRepository = {
             }
 
         ]).toArray()
-        return toViewModel(posts)
+        return arrToPostViewModel(posts)
     },
 
-    async getPostById(id: string) {
-        // return postsCollection.find({_id: new ObjectId(id) })
+    async getPostById(id: string):Promise<ViewPostModel | boolean> {
+
+
 
         const foundPost: Document[] = await postsCollection.aggregate([
             {
@@ -73,28 +77,30 @@ export const postsRepository = {
 
         ]).toArray()
 
+        if(!foundPost[0]) return false
 
-        return (toViewModel(foundPost))[0]
+        // return (arrToPostViewModel(foundPost))[0]
+        return objToPostViewModel(foundPost[0])
     },
 
-    async createPost(newPostData: CreatePostModel) {
+
+
+    async createPost(newPostData: CreatePostModel):Promise<ViewPostModel | boolean> {
 
 
         let result = await postsCollection.insertOne({...newPostData, blogId: new ObjectId(newPostData.blogId),createdAt:new Date().toISOString()})
 
         if (!result.acknowledged) return false
 
-        //how to get blogName
-        // type??
-
-        // const postTest:ViewPostModel = await this.getPostById(result.insertedId.toString())
-
         return await this.getPostById(result.insertedId.toString())
+
+
 
     },
 
 
-    async deletePost(id: string) {
+
+    async deletePost(id: string):Promise<boolean> {
 
         let result = await postsCollection.deleteOne({_id: new ObjectId(id)})
 
@@ -102,7 +108,9 @@ export const postsRepository = {
 
     },
 
-    async updatePost(id: string, newPostData: UpdatePostModel) {
+
+
+    async updatePost(id: string, newPostData: UpdatePostModel):Promise<boolean> {
 
         const result = await postsCollection.updateOne(
             {_id: new ObjectId(id)},
@@ -114,7 +122,7 @@ export const postsRepository = {
             }
         )
 
-        return result.modifiedCount === 1
+        return result.matchedCount === 1
     }
 
 }

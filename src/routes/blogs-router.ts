@@ -14,23 +14,27 @@ import {ViewBlogModel} from "../models/blogs/ViewBlogModel";
 export const blogsRouter = Router({})
 
 
+
 blogsRouter.get('/', async (req:Request, res:Response) => {
 
-    return res.send(await blogRepository.getBlogs())
+    const blogs:ViewBlogModel[] = await blogRepository.getBlogs()
+
+    return res.json(blogs)
 
 })
+
 
 
 blogsRouter.get('/:id',idValidatorMiddleware, async (req:RequestWithParams<UriIdParamsModel>, res:Response) =>  {
 
- //type???
 
-    const foundBlog = await blogRepository.getBlogById(req.params.id)
+    const foundBlog:ViewBlogModel | boolean = await blogRepository.getBlogById(req.params.id)
 
-    if(!foundBlog)  return res.sendStatus(404)
+    if(!foundBlog) return res.sendStatus(404)
 
-    return res.status(200).json(foundBlog)
+    return res.json(foundBlog)
 })
+
 
 
 blogsRouter.post('/', authorizationMiddleware,BlogsValidationMiddleware,inputValidationMiddleware,async (req:RequestWithBody<CreateBlogModel>, res:Response) => {

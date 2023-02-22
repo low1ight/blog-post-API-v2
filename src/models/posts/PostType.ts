@@ -9,13 +9,3 @@ export type PostType = {
     createdAt:string
 }
 
-
-
-// export type PostWithBlogType = {
-//     _id?: string
-//     title: string
-//     shortDescription: string
-//     content: string
-//     blogId: string
-//     blogName: string
-// };

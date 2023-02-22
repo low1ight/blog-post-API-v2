@@ -23,11 +23,12 @@ postsRouter.get('/', async (req:Request, res:Response) => {
 
 })
 
+
 postsRouter.get('/:id',idValidatorMiddleware, async (req:RequestWithParams<UriIdParamsModel>, res) => {
 
     const foundPost = await postsRepository.getPostById(req.params.id)
 
-    if(!foundPost) return res.send(404)
+    if(!foundPost) return res.sendStatus(404)
 
     return res.send(foundPost)
 
@@ -39,19 +40,20 @@ postsRouter.post('/', authorizationMiddleware, PostsValidationMiddleware, inputV
 
     const newPost = await postsRepository.createPost(req.body)
 
-    if(!newPost) return res.send(404)
+    if(!newPost) return res.sendStatus(404)
 
     return res.status(201).send(newPost)
 
 })
 
+
 postsRouter.put('/:id',authorizationMiddleware,idValidatorMiddleware,PostsValidationMiddleware,inputValidationMiddleware,async (req:RequestWithParamsAndBody<UriIdParamsModel,UpdatePostModel>, res:Response) => {
 
     const isPostUpdated = await postsRepository.updatePost(req.params.id,req.body)
 
-    if(!isPostUpdated) return res.send(404)
+    if(!isPostUpdated) return res.sendStatus(404)
 
-    return res.send(204)
+    return res.sendStatus(204)
 
 })
 
@@ -59,8 +61,8 @@ postsRouter.delete('/:id',authorizationMiddleware,idValidatorMiddleware,async (r
 
     const isPostDeleted = await postsRepository.deletePost(req.params.id)
 
-    if(!isPostDeleted) return res.send(404)
+    if(!isPostDeleted) return res.sendStatus(404)
 
-   return res.send(204)
+   return res.sendStatus(204)
 
 })
